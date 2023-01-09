@@ -10,15 +10,15 @@ function ticketPageCode(): void {
 }
 
 function commentOrder(): void {
-	const commentOrder: string | null = localStorage.getItem("ex_selectCommentOrder")
-	if (!commentOrder) return //user settings
+	const userSettings: string | null = localStorage.getItem("ex_selectCommentOrder")
+	if (!userSettings) return
 
 	let orderButton: HTMLElement | null
-	switch (commentOrder) {
+	switch (userSettings) {
 		case "newestFirst":
 			orderButton = document.querySelector("#activitymodule .issue-activity-sort-link .aui-iconfont-up")
 			if (!orderButton) {
-				if (getDebugMode()) console.log("could not find 'newest first' button")
+				if (getDebugMode()) console.log("couldn't find 'newest first' button, order is probably correct already")
 				return
 			}
 			orderButton.click()
@@ -27,7 +27,7 @@ function commentOrder(): void {
 		case "oldestFirst":
 			orderButton = document.querySelector("#activitymodule .issue-activity-sort-link .aui-iconfont-down")
 			if (!orderButton) {
-				if (getDebugMode()) console.log("could not find 'oldest first' button")
+				if (getDebugMode()) console.log("couldn't find 'oldest first' button, order is probably correct already")
 				return
 			}
 			orderButton.click()
@@ -36,8 +36,9 @@ function commentOrder(): void {
 	}
 }
 function loadExpandCollapseButtons(): void {
-	const userSetting = localStorage.getItem("ex_showExpandCollapseButtons")
-	if (!userSetting) return //user settings
+	const userSetting: string | null = localStorage.getItem("ex_showExpandCollapseButtons")
+	if (userSetting !== "true") return
+
 	//this function may be called via restoreExtensionElements(), maybe the buttons are already there
 	if (document.querySelector("#ex_expandCollapseButtons")) return
 
@@ -53,7 +54,7 @@ function loadExpandCollapseButtons(): void {
 }
 function collapseCommentsAfterPageLoad(): void {
 	const userSetting = localStorage.getItem("ex_shouldCollapseCommentsAfterPageLoad")
-	if (userSetting != "true") return //user settings
+	if (userSetting !== "true") return //user settings
 
 	//avoid issues with with commentOrder() and loadAllCommentsAfterPageLoad()
 	if (document.readyState === "complete") {
@@ -92,7 +93,7 @@ function expandComments(): void {
 function collapseModulesAfterPageLoad(): void {
 	//split input into an array and trim all of the elements
 	const userSettings: string | null = localStorage.getItem("ex_whatModulesToCollapseDuringPageLoad")
-	if (!userSettings) return //user settings
+	if (!userSettings) return
 	const modulesToCollapse: string[] = userSettingsToArray(userSettings)
 
 	if (getDebugMode()) console.log("modules to collapse:")

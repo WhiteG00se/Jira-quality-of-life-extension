@@ -4,7 +4,7 @@ function dashboardPageCode(): void {
 }
 function removeSidebar(): void {
 	const userSetting = localStorage.getItem("ex_removeSidebar")
-	if (userSetting != "true") return //user settings
+	if (userSetting !== "true") return
 
 	const sidebar: HTMLElement | null = document.querySelector("#dashboard .dashboard-tabs")
 	if (!sidebar) {
@@ -15,9 +15,9 @@ function removeSidebar(): void {
 	if (getDebugMode()) console.log("Sidebar removed")
 }
 function refreshDashboard(): void {
-	const intervalString: string | null = localStorage.getItem("ex_refreshDashboardInterval")
-	if (!intervalString) return // check localStorage
-	const interval: number = parseInt(intervalString)
+	const userSetting: string | null = localStorage.getItem("ex_refreshDashboardInterval")
+	if (!userSetting) return
+	const interval: number = parseInt(userSetting)
 
 	setInterval(function () {
 		// check if there is an element with id "create-issue-dialog" AND if "ex_modal" is visible AND if pageType is "dashboard"

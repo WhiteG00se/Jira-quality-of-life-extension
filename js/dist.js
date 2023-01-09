@@ -5,8 +5,8 @@ function dashboardPageCode() {
 }
 function removeSidebar() {
     const userSetting = localStorage.getItem("ex_removeSidebar");
-    if (userSetting != "true")
-        return; //user settings
+    if (userSetting !== "true")
+        return;
     const sidebar = document.querySelector("#dashboard .dashboard-tabs");
     if (!sidebar) {
         if (getDebugMode())
@@ -18,10 +18,10 @@ function removeSidebar() {
         console.log("Sidebar removed");
 }
 function refreshDashboard() {
-    const intervalString = localStorage.getItem("ex_refreshDashboardInterval");
-    if (!intervalString)
-        return; // check localStorage
-    const interval = parseInt(intervalString);
+    const userSetting = localStorage.getItem("ex_refreshDashboardInterval");
+    if (!userSetting)
+        return;
+    const interval = parseInt(userSetting);
     setInterval(function () {
         // check if there is an element with id "create-issue-dialog" AND if "ex_modal" is visible AND if pageType is "dashboard"
         if (document.querySelector("#create-issue-dialog") == null &&
@@ -394,16 +394,16 @@ function ticketPageCode() {
     runCodeAtReadyState("complete", commentOrder, collapseModulesAfterPageLoad, collapseCommentsAfterPageLoad, loadExpandCollapseButtons, copyTicketIdButton);
 }
 function commentOrder() {
-    const commentOrder = localStorage.getItem("ex_selectCommentOrder");
-    if (!commentOrder)
-        return; //user settings
+    const userSettings = localStorage.getItem("ex_selectCommentOrder");
+    if (!userSettings)
+        return;
     let orderButton;
-    switch (commentOrder) {
+    switch (userSettings) {
         case "newestFirst":
             orderButton = document.querySelector("#activitymodule .issue-activity-sort-link .aui-iconfont-up");
             if (!orderButton) {
                 if (getDebugMode())
-                    console.log("could not find 'newest first' button");
+                    console.log("couldn't find 'newest first' button, order is probably correct already");
                 return;
             }
             orderButton.click();
@@ -414,7 +414,7 @@ function commentOrder() {
             orderButton = document.querySelector("#activitymodule .issue-activity-sort-link .aui-iconfont-down");
             if (!orderButton) {
                 if (getDebugMode())
-                    console.log("could not find 'oldest first' button");
+                    console.log("couldn't find 'oldest first' button, order is probably correct already");
                 return;
             }
             orderButton.click();
@@ -425,8 +425,8 @@ function commentOrder() {
 }
 function loadExpandCollapseButtons() {
     const userSetting = localStorage.getItem("ex_showExpandCollapseButtons");
-    if (!userSetting)
-        return; //user settings
+    if (userSetting !== "true")
+        return;
     //this function may be called via restoreExtensionElements(), maybe the buttons are already there
     if (document.querySelector("#ex_expandCollapseButtons"))
         return;
@@ -442,7 +442,7 @@ function loadExpandCollapseButtons() {
 }
 function collapseCommentsAfterPageLoad() {
     const userSetting = localStorage.getItem("ex_shouldCollapseCommentsAfterPageLoad");
-    if (userSetting != "true")
+    if (userSetting !== "true")
         return; //user settings
     //avoid issues with with commentOrder() and loadAllCommentsAfterPageLoad()
     if (document.readyState === "complete") {
@@ -486,7 +486,7 @@ function collapseModulesAfterPageLoad() {
     //split input into an array and trim all of the elements
     const userSettings = localStorage.getItem("ex_whatModulesToCollapseDuringPageLoad");
     if (!userSettings)
-        return; //user settings
+        return;
     const modulesToCollapse = userSettingsToArray(userSettings);
     if (getDebugMode())
         console.log("modules to collapse:");
