@@ -54,18 +54,8 @@ function loadExpandCollapseButtons(): void {
 }
 function collapseCommentsAfterPageLoad(): void {
 	const userSetting = localStorage.getItem("ex_shouldCollapseCommentsAfterPageLoad")
-	if (userSetting !== "true") return //user settings
-
-	//avoid issues with with commentOrder() and loadAllCommentsAfterPageLoad()
-	if (document.readyState === "complete") {
-		collapseComments()
-	} else {
-		document.addEventListener("readystatechange", () => {
-			if (document.readyState === "complete") {
-				collapseComments()
-			}
-		})
-	}
+	if (userSetting !== "true") return
+	collapseComments()
 }
 function collapseComments(): void {
 	const comments: NodeListOf<HTMLElement> = document.querySelectorAll(".twixi-block")
