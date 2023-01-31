@@ -1,9 +1,15 @@
-runCodeAtReadyState("interactive", runCodeForPagetype)
-runCodeAtReadyState("complete", initializeObserver)
+main()
+function main() {
+	if (!isJira()) return
+	runCodeForPagetype()
+	initializeObserver()
+}
 
 function runCodeForPagetype(): void {
 	const pageType: string = getPageType()
 	if (pageType == "plugin") return
+	if (getDebugMode()) console.log(`pageType: '${pageType}'`)
+
 	modalCode()
 	switch (pageType) {
 		case "dashboard":
@@ -33,4 +39,18 @@ function getDebugMode(): boolean {
 	} else {
 		return false
 	}
+}
+
+function isJira() {
+	//Jira should have the following meta tag in the head:
+	//<meta name="application-name" content="JIRA" data-name="jira" data-version="X.X.X">
+	const metaTags = document.querySelectorAll("meta")
+	for (const metaTag of metaTags) {
+		if (metaTag.name == "application-name" && metaTag.content == "JIRA") {
+			if (getDebugMode()) console.log("this website is Jira!")
+			return true
+		}
+	}
+	if (getDebugMode()) console.log("this website is not Jira!")
+	return false
 }

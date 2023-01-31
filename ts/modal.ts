@@ -1,13 +1,16 @@
-function modalCode() {
+async function modalCode() {
 	//don't run any code if modal was already loaded
 	if (document.querySelector("#ex_modalButton") != null) return
-	runCodeAtReadyState("interactive", loadModalButton, loadModal, localStorageToModal, submitModal)
+	await loadModalButton()
+	loadModal()
+	localStorageToModal()
+	submitModal()
 }
 
-function loadModalButton() {
+async function loadModalButton() {
 	//load ex_modalButton into nav bar + add event listener to open the modal
-	const addButtonHere: HTMLElement | null = document.querySelector("#quicksearch-menu")
-	if (!addButtonHere) throw new Error("could not find #quicksearch-menu to add ex_modalButton")
+	const addButtonHere = await waitForSelector("#quicksearch-menu")
+	if (!addButtonHere) throw new Error(`could not find "#quicksearch-menu" to add ex_modalButton`)
 	addButtonHere.insertAdjacentHTML("afterend", get_ex_modalButton())
 
 	const addEventListenerHere: HTMLElement | null = document.querySelector("#ex_modalButton")
@@ -24,7 +27,7 @@ function loadModalButton() {
 }
 function loadModal() {
 	//load ex_modal into page with "display: none"
-	document.querySelector("body")!.insertAdjacentHTML("beforeend", get_ex_modal())
+	document.body.insertAdjacentHTML("beforeend", get_ex_modal())
 	//add event listener to cancel button
 	document.querySelector("#ex_modal-cancel-button")!.addEventListener("click", function () {
 		document.querySelector<HTMLElement>("#ex_modal")!.style.display = "none"

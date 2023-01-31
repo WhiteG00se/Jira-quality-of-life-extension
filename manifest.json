@@ -15,11 +15,9 @@
             "js/dist.js"
          ],
          "matches": [
-            "https://*/jira/*",
-            "https://*/jira/browse/*",
-            "https://jira.poet.de/*"
+            "<all_urls>"
          ],
-         "run_at": "document_start"
+         "run_at": "document_end"
       }
    ]
 }

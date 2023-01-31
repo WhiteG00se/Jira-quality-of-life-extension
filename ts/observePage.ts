@@ -1,5 +1,5 @@
 function initializeObserver(): void {
-	const monitoredNode: Node = document.querySelector("body")!
+	const monitoredNode: Node = document.body
 	const ex_mutationObserver = new MutationObserver((entries) => {
 		monitorPageChanges()
 	})
@@ -8,7 +8,7 @@ function initializeObserver(): void {
 
 function monitorPageChanges(): void {
 	const oldPageTitle: string = sessionStorage?.getItem("ex_pageTitle") ?? ""
-	const newPageTitle: string = getPageTitle()
+	const newPageTitle: string = document.title
 	const oldPageURL: string = sessionStorage?.getItem("ex_pageURL") ?? ""
 	const newPageURL: string = window.location.href
 	//wait until both the pageTitle and the pageURL have changed
@@ -29,57 +29,38 @@ function monitorPageChanges(): void {
 	}
 }
 
-function getPageTitle(): string {
-	const pageTitle: string = document.querySelector("title")?.innerText ?? ""
-	if (pageTitle == "") throw new Error("Error: could not get pageTitle")
-	return pageTitle
-}
-
 function getPageType(): string {
-	const URL: string = window.location.href
-	let pageType: string = "default"
-	const ticketRegex: RegExp = /(\/browse\/[A-Za-z0-9]+-[0-9]+.*)|(\/issues\/[A-Za-z0-9]+-[0-9]+.*)/i
-	switch (true) {
-		case URL.toLowerCase().includes("/plugins"):
-			pageType = "plugin"
-			break
-		case URL.toLowerCase().includes("/dashboard.jspa"):
-			pageType = "dashboard"
-			break
-		case ticketRegex.test(URL):
-			pageType = "ticket"
-			break
-	}
-	if (getDebugMode()) console.log(`pageType: '${pageType}' | URL: '${URL}'`)
+	let pageType = "default"
+	const URL = window.location.href
+	if (URL.toLowerCase().includes("/plugins")) pageType = "plugin"
+	// if it's not a plugin page, if there is a meta with the name 'ajs-viewissue-use-history-api'
+	// then it's a ticket page
+	else if (document.querySelector("meta[name='ajs-viewissue-use-history-api']")) pageType = "ticket"
+	// if it's not a plugin page or a ticket page, then check if it's a dashboard page
+	// by checking if the body has the class 'page-type-dashboard'
+	else if (document.body.classList.contains("page-type-dashboard")) pageType = "dashboard"
 	return pageType
 }
 
-//readyStates: loading, interactive, complete
-function runCodeAtReadyState(whenToRun: string, ...functions: Function[]): void {
-	const currentState: string = document.readyState
-	if (currentState === whenToRun) functions.forEach((func) => func())
-	else {
-		const whenToRunOrdinal: number = getReadyStateOrdinal(whenToRun)
-		const currentStateOrdinal: number = getReadyStateOrdinal(currentState)
-		if (currentStateOrdinal > whenToRunOrdinal)
-			throw new Error(`Timing missed: currentState: (${currentState}) and whenToRun: (${whenToRun})`)
-		document.addEventListener("readystatechange", () => {
-			if (document.readyState === whenToRun) functions.forEach((func) => func())
+function waitForSelector(selector: string): Promise<HTMLElement> {
+	return new Promise((resolve) => {
+		const selectedElement = document.querySelector(selector)
+		if (selectedElement) {
+			resolve(selectedElement as HTMLElement)
+			return
+		}
+
+		const observer = new MutationObserver((mutations) => {
+			const selectedElement = document.querySelector(selector)
+			if (selectedElement) {
+				resolve(selectedElement as HTMLElement)
+				observer.disconnect()
+			}
 		})
-	}
-}
-function getReadyStateOrdinal(readyState: string): number {
-	switch (readyState) {
-		case "loading":
-			return 0
-			break
-		case "interactive":
-			return 1
-			break
-		case "complete":
-			return 2
-			break
-		default:
-			throw new Error(`Error: readyState '${readyState}' was not defined`)
-	}
+
+		observer.observe(document, {
+			childList: true,
+			subtree: true
+		})
+	})
 }
