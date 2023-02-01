@@ -36,10 +36,11 @@ async function loadExpandCollapseButtons() {
 	const userSetting: string | null = localStorage.getItem("ex_showExpandCollapseButtons")
 	if (userSetting !== "true") return
 
+	const addButtonsHere = await waitForSelector("#activitymodule_heading h4")
+
 	//this function may be called via restoreExtensionElements(), maybe the buttons are already there
 	if (document.querySelector("#ex_expandCollapseButtons")) return
 
-	const addButtonsHere = await waitForSelector("#activitymodule_heading h4")
 	if (!addButtonsHere) {
 		if (getDebugMode()) console.log("could not find where to add the expand/collapse buttons")
 		return
@@ -128,10 +129,11 @@ function findModuleContainer(moduleButton: HTMLElement): HTMLElement | null {
 async function copyTicketIdButton() {
 	const userSetting: string | null = localStorage.getItem("ex_showCopyTicketIdButton")
 	if (userSetting !== "true") return
+	
+	const toolbar = await waitForSelector(".aui-toolbar2-primary")
 	//this function may be called via restoreExtensionElements(), maybe the buttons are already there
 	if (document.querySelector("#ex_copyTicketIdButton")) return
 
-	const toolbar = await waitForSelector(".aui-toolbar2-primary")
 	if (!toolbar) {
 		if (getDebugMode()) console.log("couldn't find the toolbar to add the copy ticket id button")
 		return
