@@ -1,12 +1,12 @@
 function dashboardPageCode(): void {
-	runCodeAtReadyState("interactive", removeSidebar)
-	runCodeAtReadyState("complete", refreshDashboard)
+	removeSidebar()
+	refreshDashboard()
 }
-function removeSidebar(): void {
+async function removeSidebar() {
 	const userSetting = localStorage.getItem("ex_removeSidebar")
 	if (userSetting !== "true") return
 
-	const sidebar: HTMLElement | null = document.querySelector("#dashboard .dashboard-tabs")
+	const sidebar = await waitForSelector("#dashboard .dashboard-tabs")
 	if (!sidebar) {
 		if (getDebugMode()) console.info("could not find and remove sidebar")
 		return

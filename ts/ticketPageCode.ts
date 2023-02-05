@@ -1,48 +1,46 @@
-function ticketPageCode(): void {
-	runCodeAtReadyState(
-		"complete",
-		commentOrder,
-		collapseModulesAfterPageLoad,
-		collapseCommentsAfterPageLoad,
-		loadExpandCollapseButtons,
-		copyTicketIdButton
-	)
+async function ticketPageCode() {
+	commentOrder()
+	collapseModulesAfterPageLoad()
+	collapseCommentsAfterPageLoad()
+	loadExpandCollapseButtons()
+	copyTicketIdButton()
 }
 
-function commentOrder(): void {
+async function commentOrder() {
 	const userSettings: string | null = localStorage.getItem("ex_selectCommentOrder")
 	if (!userSettings) return
 
-	let orderButton: HTMLElement | null
+	const orderButton = await waitForSelector("#sort-button")
 	switch (userSettings) {
 		case "newestFirst":
-			orderButton = document.querySelector("#activitymodule .issue-activity-sort-link .aui-iconfont-up")
-			if (!orderButton) {
-				if (getDebugMode()) console.log("couldn't find 'newest first' button, order is probably correct already")
+			if (orderButton.getAttribute("data-order") === "asc") {
+				if (getDebugMode()) console.log("comments are already in the correct order")
+				return
+			} else {
+				orderButton.click()
+				if (getDebugMode()) console.log("clicked on 'newest first' button")
 				return
 			}
-			orderButton.click()
-			if (getDebugMode()) console.log("clicked on 'newest first' button")
-			break
 		case "oldestFirst":
-			orderButton = document.querySelector("#activitymodule .issue-activity-sort-link .aui-iconfont-down")
-			if (!orderButton) {
-				if (getDebugMode()) console.log("couldn't find 'oldest first' button, order is probably correct already")
+			if (orderButton.getAttribute("data-order") === "desc") {
+				if (getDebugMode()) console.log("comments are already in the correct order")
+				return
+			} else {
+				orderButton.click()
+				if (getDebugMode()) console.log("clicked on 'oldest first' button")
 				return
 			}
-			orderButton.click()
-			if (getDebugMode()) console.log("clicked on 'oldest first' button")
-			break
 	}
 }
-function loadExpandCollapseButtons(): void {
+async function loadExpandCollapseButtons() {
 	const userSetting: string | null = localStorage.getItem("ex_showExpandCollapseButtons")
 	if (userSetting !== "true") return
+
+	const addButtonsHere = await waitForSelector("#activitymodule_heading h4")
 
 	//this function may be called via restoreExtensionElements(), maybe the buttons are already there
 	if (document.querySelector("#ex_expandCollapseButtons")) return
 
-	const addButtonsHere: HTMLElement | null = document.querySelector("#activitymodule_heading h4")
 	if (!addButtonsHere) {
 		if (getDebugMode()) console.log("could not find where to add the expand/collapse buttons")
 		return
@@ -52,9 +50,10 @@ function loadExpandCollapseButtons(): void {
 	document.querySelector("#collapseComments")!.addEventListener("click", collapseComments)
 	document.querySelector("#expandComments")!.addEventListener("click", expandComments)
 }
-function collapseCommentsAfterPageLoad(): void {
+async function collapseCommentsAfterPageLoad() {
 	const userSetting = localStorage.getItem("ex_shouldCollapseCommentsAfterPageLoad")
 	if (userSetting !== "true") return
+	await waitForSelector(".twixi-block")
 	collapseComments()
 }
 function collapseComments(): void {
@@ -80,7 +79,7 @@ function expandComments(): void {
 		comment.classList.add("expanded")
 	})
 }
-function collapseModulesAfterPageLoad(): void {
+async function collapseModulesAfterPageLoad() {
 	//split input into an array and trim all of the elements
 	const userSettings: string | null = localStorage.getItem("ex_whatModulesToCollapseDuringPageLoad")
 	if (!userSettings) return
@@ -89,6 +88,7 @@ function collapseModulesAfterPageLoad(): void {
 	if (getDebugMode()) console.log("modules to collapse:")
 	if (getDebugMode()) console.log(modulesToCollapse)
 
+	await waitForSelector("button[aria-label]")
 	modulesToCollapse.forEach(function (module) {
 		collapseModule(module)
 	})
@@ -126,13 +126,14 @@ function findModuleContainer(moduleButton: HTMLElement): HTMLElement | null {
 	return moduleContainer
 }
 
-function copyTicketIdButton(): void {
+async function copyTicketIdButton() {
 	const userSetting: string | null = localStorage.getItem("ex_showCopyTicketIdButton")
 	if (userSetting !== "true") return
+	
+	const toolbar = await waitForSelector(".aui-toolbar2-primary")
 	//this function may be called via restoreExtensionElements(), maybe the buttons are already there
 	if (document.querySelector("#ex_copyTicketIdButton")) return
 
-	const toolbar: HTMLElement | null = document.querySelector(".aui-toolbar2-primary")
 	if (!toolbar) {
 		if (getDebugMode()) console.log("couldn't find the toolbar to add the copy ticket id button")
 		return

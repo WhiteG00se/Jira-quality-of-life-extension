@@ -1,13 +1,13 @@
 "use strict";
 function dashboardPageCode() {
-    runCodeAtReadyState("interactive", removeSidebar);
-    runCodeAtReadyState("complete", refreshDashboard);
+    removeSidebar();
+    refreshDashboard();
 }
-function removeSidebar() {
+async function removeSidebar() {
     const userSetting = localStorage.getItem("ex_removeSidebar");
     if (userSetting !== "true")
         return;
-    const sidebar = document.querySelector("#dashboard .dashboard-tabs");
+    const sidebar = await waitForSelector("#dashboard .dashboard-tabs");
     if (!sidebar) {
         if (getDebugMode())
             console.info("could not find and remove sidebar");
@@ -186,12 +186,19 @@ function get_ex_copyTicketIdButton() {
 `;
     return html;
 }
-runCodeAtReadyState("interactive", runCodeForPagetype);
-runCodeAtReadyState("complete", initializeObserver);
+main();
+function main() {
+    if (!isJira())
+        return;
+    runCodeForPagetype();
+    initializeObserver();
+}
 function runCodeForPagetype() {
     const pageType = getPageType();
     if (pageType == "plugin")
         return;
+    if (getDebugMode())
+        console.log(`pageType: '${pageType}'`);
     modalCode();
     switch (pageType) {
         case "dashboard":
@@ -222,17 +229,35 @@ function getDebugMode() {
         return false;
     }
 }
-function modalCode() {
+function isJira() {
+    //Jira should have the following meta tag in the head:
+    //<meta name="application-name" content="JIRA" data-name="jira" data-version="X.X.X">
+    const metaTags = document.querySelectorAll("meta");
+    for (const metaTag of metaTags) {
+        if (metaTag.name == "application-name" && metaTag.content == "JIRA") {
+            if (getDebugMode())
+                console.log("this website is Jira!");
+            return true;
+        }
+    }
+    if (getDebugMode())
+        console.log("this website is not Jira!");
+    return false;
+}
+async function modalCode() {
     //don't run any code if modal was already loaded
     if (document.querySelector("#ex_modalButton") != null)
         return;
-    runCodeAtReadyState("interactive", loadModalButton, loadModal, localStorageToModal, submitModal);
+    await loadModalButton();
+    loadModal();
+    localStorageToModal();
+    submitModal();
 }
-function loadModalButton() {
+async function loadModalButton() {
     //load ex_modalButton into nav bar + add event listener to open the modal
-    const addButtonHere = document.querySelector("#quicksearch-menu");
+    const addButtonHere = await waitForSelector("#quicksearch-menu");
     if (!addButtonHere)
-        throw new Error("could not find #quicksearch-menu to add ex_modalButton");
+        throw new Error(`could not find "#quicksearch-menu" to add ex_modalButton`);
     addButtonHere.insertAdjacentHTML("afterend", get_ex_modalButton());
     const addEventListenerHere = document.querySelector("#ex_modalButton");
     if (!addEventListenerHere)
@@ -250,7 +275,7 @@ function loadModalButton() {
 }
 function loadModal() {
     //load ex_modal into page with "display: none"
-    document.querySelector("body").insertAdjacentHTML("beforeend", get_ex_modal());
+    document.body.insertAdjacentHTML("beforeend", get_ex_modal());
     //add event listener to cancel button
     document.querySelector("#ex_modal-cancel-button").addEventListener("click", function () {
         document.querySelector("#ex_modal").style.display = "none";
@@ -303,7 +328,7 @@ function userSettingsToArray(userSettings) {
     return settingsArray;
 }
 function initializeObserver() {
-    const monitoredNode = document.querySelector("body");
+    const monitoredNode = document.body;
     const ex_mutationObserver = new MutationObserver((entries) => {
         monitorPageChanges();
     });
@@ -311,7 +336,7 @@ function initializeObserver() {
 }
 function monitorPageChanges() {
     const oldPageTitle = sessionStorage?.getItem("ex_pageTitle") ?? "";
-    const newPageTitle = getPageTitle();
+    const newPageTitle = document.title;
     const oldPageURL = sessionStorage?.getItem("ex_pageURL") ?? "";
     const newPageURL = window.location.href;
     //wait until both the pageTitle and the pageURL have changed
@@ -334,103 +359,91 @@ function monitorPageChanges() {
         restoreExtensionForPagetype();
     }
 }
-function getPageTitle() {
-    const pageTitle = document.querySelector("title")?.innerText ?? "";
-    if (pageTitle == "")
-        throw new Error("Error: could not get pageTitle");
-    return pageTitle;
-}
 function getPageType() {
-    const URL = window.location.href;
     let pageType = "default";
-    const ticketRegex = /(\/browse\/[A-Za-z0-9]+-[0-9]+.*)|(\/issues\/[A-Za-z0-9]+-[0-9]+.*)/i;
-    switch (true) {
-        case URL.toLowerCase().includes("/plugins"):
-            pageType = "plugin";
-            break;
-        case URL.toLowerCase().includes("/dashboard.jspa"):
-            pageType = "dashboard";
-            break;
-        case ticketRegex.test(URL):
+    const URL = window.location.href;
+    if (URL.toLowerCase().includes("/plugins"))
+        pageType = "plugin";
+    else if (document.body.classList.contains("page-type-dashboard"))
+        pageType = "dashboard";
+    else if (URL.includes("/browse/") || (URL.includes("/projects/") && URL.includes("/queues/"))) {
+        //check if the URL ends like "/[at least one char]-[number]" e.g. "/ABC-123"
+        const parts = URL.split("/");
+        const lastPart = parts[parts.length - 1];
+        const issueKeyParts = lastPart.split("-");
+        if (issueKeyParts.length === 2 && !isNaN(parseInt(issueKeyParts[1]))) {
             pageType = "ticket";
-            break;
+        }
     }
-    if (getDebugMode())
-        console.log(`pageType: '${pageType}' | URL: '${URL}'`);
     return pageType;
 }
-//readyStates: loading, interactive, complete
-function runCodeAtReadyState(whenToRun, ...functions) {
-    const currentState = document.readyState;
-    if (currentState === whenToRun)
-        functions.forEach((func) => func());
-    else {
-        const whenToRunOrdinal = getReadyStateOrdinal(whenToRun);
-        const currentStateOrdinal = getReadyStateOrdinal(currentState);
-        if (currentStateOrdinal > whenToRunOrdinal)
-            throw new Error(`Timing missed: currentState: (${currentState}) and whenToRun: (${whenToRun})`);
-        document.addEventListener("readystatechange", () => {
-            if (document.readyState === whenToRun)
-                functions.forEach((func) => func());
+function waitForSelector(selector) {
+    return new Promise((resolve) => {
+        const selectedElement = document.querySelector(selector);
+        if (selectedElement) {
+            resolve(selectedElement);
+            return;
+        }
+        const observer = new MutationObserver((mutations) => {
+            const selectedElement = document.querySelector(selector);
+            if (selectedElement) {
+                resolve(selectedElement);
+                observer.disconnect();
+            }
         });
-    }
+        observer.observe(document, {
+            childList: true,
+            subtree: true
+        });
+    });
 }
-function getReadyStateOrdinal(readyState) {
-    switch (readyState) {
-        case "loading":
-            return 0;
-            break;
-        case "interactive":
-            return 1;
-            break;
-        case "complete":
-            return 2;
-            break;
-        default:
-            throw new Error(`Error: readyState '${readyState}' was not defined`);
-    }
+async function ticketPageCode() {
+    commentOrder();
+    collapseModulesAfterPageLoad();
+    collapseCommentsAfterPageLoad();
+    loadExpandCollapseButtons();
+    copyTicketIdButton();
 }
-function ticketPageCode() {
-    runCodeAtReadyState("complete", commentOrder, collapseModulesAfterPageLoad, collapseCommentsAfterPageLoad, loadExpandCollapseButtons, copyTicketIdButton);
-}
-function commentOrder() {
+async function commentOrder() {
     const userSettings = localStorage.getItem("ex_selectCommentOrder");
     if (!userSettings)
         return;
-    let orderButton;
+    const orderButton = await waitForSelector("#sort-button");
     switch (userSettings) {
         case "newestFirst":
-            orderButton = document.querySelector("#activitymodule .issue-activity-sort-link .aui-iconfont-up");
-            if (!orderButton) {
+            if (orderButton.getAttribute("data-order") === "asc") {
                 if (getDebugMode())
-                    console.log("couldn't find 'newest first' button, order is probably correct already");
+                    console.log("comments are already in the correct order");
                 return;
             }
-            orderButton.click();
-            if (getDebugMode())
-                console.log("clicked on 'newest first' button");
-            break;
+            else {
+                orderButton.click();
+                if (getDebugMode())
+                    console.log("clicked on 'newest first' button");
+                return;
+            }
         case "oldestFirst":
-            orderButton = document.querySelector("#activitymodule .issue-activity-sort-link .aui-iconfont-down");
-            if (!orderButton) {
+            if (orderButton.getAttribute("data-order") === "desc") {
                 if (getDebugMode())
-                    console.log("couldn't find 'oldest first' button, order is probably correct already");
+                    console.log("comments are already in the correct order");
                 return;
             }
-            orderButton.click();
-            if (getDebugMode())
-                console.log("clicked on 'oldest first' button");
-            break;
+            else {
+                orderButton.click();
+                if (getDebugMode())
+                    console.log("clicked on 'oldest first' button");
+                return;
+            }
     }
 }
-function loadExpandCollapseButtons() {
+async function loadExpandCollapseButtons() {
     const userSetting = localStorage.getItem("ex_showExpandCollapseButtons");
     if (userSetting !== "true")
         return;
+    const addButtonsHere = await waitForSelector("#activitymodule_heading h4");
     //this function may be called via restoreExtensionElements(), maybe the buttons are already there
     if (document.querySelector("#ex_expandCollapseButtons"))
         return;
-    const addButtonsHere = document.querySelector("#activitymodule_heading h4");
     if (!addButtonsHere) {
         if (getDebugMode())
             console.log("could not find where to add the expand/collapse buttons");
@@ -440,10 +453,11 @@ function loadExpandCollapseButtons() {
     document.querySelector("#collapseComments").addEventListener("click", collapseComments);
     document.querySelector("#expandComments").addEventListener("click", expandComments);
 }
-function collapseCommentsAfterPageLoad() {
+async function collapseCommentsAfterPageLoad() {
     const userSetting = localStorage.getItem("ex_shouldCollapseCommentsAfterPageLoad");
     if (userSetting !== "true")
         return;
+    await waitForSelector(".twixi-block");
     collapseComments();
 }
 function collapseComments() {
@@ -472,7 +486,7 @@ function expandComments() {
         comment.classList.add("expanded");
     });
 }
-function collapseModulesAfterPageLoad() {
+async function collapseModulesAfterPageLoad() {
     //split input into an array and trim all of the elements
     const userSettings = localStorage.getItem("ex_whatModulesToCollapseDuringPageLoad");
     if (!userSettings)
@@ -482,6 +496,7 @@ function collapseModulesAfterPageLoad() {
         console.log("modules to collapse:");
     if (getDebugMode())
         console.log(modulesToCollapse);
+    await waitForSelector("button[aria-label]");
     modulesToCollapse.forEach(function (module) {
         collapseModule(module);
     });
@@ -519,14 +534,14 @@ function findModuleContainer(moduleButton) {
     }
     return moduleContainer;
 }
-function copyTicketIdButton() {
+async function copyTicketIdButton() {
     const userSetting = localStorage.getItem("ex_showCopyTicketIdButton");
     if (userSetting !== "true")
         return;
+    const toolbar = await waitForSelector(".aui-toolbar2-primary");
     //this function may be called via restoreExtensionElements(), maybe the buttons are already there
     if (document.querySelector("#ex_copyTicketIdButton"))
         return;
-    const toolbar = document.querySelector(".aui-toolbar2-primary");
     if (!toolbar) {
         if (getDebugMode())
             console.log("couldn't find the toolbar to add the copy ticket id button");
