@@ -1,12 +1,12 @@
 function get_ex_modalButton(): string {
-	const html: string = `
+const html: string = `
 <button id="ex_modalButton">
 	<h3>&#9889</h3>
 </button>`
-	return html
+return html
 }
 function get_ex_modal(): string {
-	const html: string = `
+const html: string = `
 <span id="ex_modal" style="display: none">
 	<section class="aui-layer aui-dialog2 aui-dialog2-large" open="" style="z-index: 3000;" tabindex="-1">
 		<header class="aui-dialog2-header">
@@ -16,6 +16,23 @@ function get_ex_modal(): string {
 			<form id="ex_form">
 				<h2>dashboard settings</h2>
 				<table>
+					<tr>
+						<td>
+							<abbr title="explaination goes here">
+								notification bell</abbr>
+						</td>
+						<td>
+							<input type="checkbox" class="ex_modalCheckbox" id="ex_notificationBell">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							remove sidebar?
+						</td>
+						<td>
+							<input type="checkbox" class="ex_modalCheckbox" id="ex_removeSidebar">
+						</td>
+					</tr>
 					<tr>
 						<td>
 							refresh the page <abbr
@@ -40,14 +57,6 @@ function get_ex_modal(): string {
 								<option value="780">13</option>
 								<option value="840">14</option>
 							</select>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							remove sidebar?
-						</td>
-						<td>
-							<input type="checkbox" class="ex_modalCheckbox" id="ex_removeSidebar">
 						</td>
 					</tr>
 				</table>
@@ -126,23 +135,23 @@ function get_ex_modal(): string {
 </span>
 <div aria-hidden="true" class="aui-blanket" tabindex="0" hidden=""></div>
 `
-	return html
+return html
 }
 function get_ex_expandCollapseButtons() {
-	const html = `
+const html = `
 <span id="ex_expandCollapseButtons">
 	<button id="expandComments">expand all</button>
 	<button id="collapseComments">collapse all</button>
 </span>
 `
-	return html
+return html
 }
 function get_ex_copyTicketIdButton() {
-	const html = `
+const html = `
 <div id="ex_copyTicketIdButton" class="aui-buttons pluggable-ops">
 	<a title="copy ticket id to clipboard" class="aui-button toolbar-trigger">
 		<span class="trigger-label">Copy Ticket ID</span></a>
 </div>
 `
-	return html
+return html
 }

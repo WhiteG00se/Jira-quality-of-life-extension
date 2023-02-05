@@ -2,6 +2,7 @@
 function dashboardPageCode() {
     removeSidebar();
     refreshDashboard();
+    notificationBell();
 }
 async function removeSidebar() {
     const userSetting = localStorage.getItem("ex_removeSidebar");
@@ -38,6 +39,35 @@ function refreshDashboard() {
     if (getDebugMode())
         console.log("Refreshing dashboard every " + interval + " seconds");
 }
+async function notificationBell() {
+    const userSetting = localStorage.getItem("ex_notificationBell");
+    if (userSetting !== "true")
+        return;
+    const test = await getTicketUpdates();
+    console.log(test);
+}
+async function getTicketUpdates() {
+    const select = "key,summary,self";
+    const query = "watcher=currentUser()";
+    const limit = 50;
+    const domain = window.location.hostname;
+    const apiUrl = `https://${domain}/rest/api/2/search?jql=${encodeURIComponent(query)}&maxResults=${limit}&fields=${select}`;
+    try {
+        const response = await fetch(apiUrl, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Basic "
+            }
+        });
+        const data = await response.json();
+        const issues = data.issues;
+        return issues;
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
 function get_ex_modalButton() {
     const html = `
 <button id="ex_modalButton">
@@ -56,6 +86,23 @@ function get_ex_modal() {
 			<form id="ex_form">
 				<h2>dashboard settings</h2>
 				<table>
+					<tr>
+						<td>
+							<abbr title="explaination goes here">
+								notification bell</abbr>
+						</td>
+						<td>
+							<input type="checkbox" class="ex_modalCheckbox" id="ex_notificationBell">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							remove sidebar?
+						</td>
+						<td>
+							<input type="checkbox" class="ex_modalCheckbox" id="ex_removeSidebar">
+						</td>
+					</tr>
 					<tr>
 						<td>
 							refresh the page <abbr
@@ -80,14 +127,6 @@ function get_ex_modal() {
 								<option value="780">13</option>
 								<option value="840">14</option>
 							</select>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							remove sidebar?
-						</td>
-						<td>
-							<input type="checkbox" class="ex_modalCheckbox" id="ex_removeSidebar">
 						</td>
 					</tr>
 				</table>
