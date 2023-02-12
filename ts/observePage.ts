@@ -35,11 +35,10 @@ function getPageType(): string {
 	if (URL.toLowerCase().includes("/plugins")) pageType = "plugin"
 	else if (document.body.classList.contains("page-type-dashboard")) pageType = "dashboard"
 	else if (URL.includes("/browse/") || (URL.includes("/projects/") && URL.includes("/queues/"))) {
-		//check if the URL ends like "/[at least one char]-[number]" e.g. "/ABC-123"
 		const parts = URL.split("/")
 		const lastPart = parts[parts.length - 1]
-		const issueKeyParts = lastPart.split("-")
-		if (issueKeyParts.length === 2 && !isNaN(parseInt(issueKeyParts[1]))) {
+		
+		if (/^[a-zA-Z]+-[0-9]+/.test(lastPart)) {
 			pageType = "ticket"
 		}
 	}
