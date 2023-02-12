@@ -120,7 +120,7 @@ function get_ex_modal(): string {
 				<button id="ex_modal-submit-button" class="aui-button aui-button-primary" resolved="">Submit</button>
 				<button id="ex_modal-cancel-button" class="aui-button aui-button-link" resolved="">Cancel</button>
 			</div>
-			<div class="aui-dialog2-footer-hint">Made by Tobias L</div>
+			<div class="aui-dialog2-footer-hint"></div>
 		</footer>
 	</section>
 </span>

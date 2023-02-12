@@ -47,10 +47,12 @@ function isJira() {
 	const metaTags = document.querySelectorAll("meta")
 	for (const metaTag of metaTags) {
 		if (metaTag.name == "application-name" && metaTag.content == "JIRA") {
-			if (getDebugMode()) console.log("this website is Jira!")
+			//can't use "if (getDebugMode())" here, check comment below
+			console.log("this website is Jira!")
 			return true
 		}
 	}
-	if (getDebugMode()) console.log("this website is not Jira!")
+	//can't use "if (getDebugMode())" here because then I'd get no console output if the website is not Jira
+	console.log("this website is not Jira!")
 	return false
 }
