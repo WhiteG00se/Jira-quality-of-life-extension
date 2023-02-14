@@ -438,7 +438,7 @@ async function loadExpandCollapseButtons() {
     const userSetting = localStorage.getItem("ex_showExpandCollapseButtons");
     if (userSetting !== "true")
         return;
-    const addButtonsHere = await waitForSelector("#activitymodule_heading h4");
+    const addButtonsHere = await waitForSelector("#activitymodule_heading");
     //this function may be called via restoreExtensionElements(), maybe the buttons are already there
     if (document.querySelector("#ex_expandCollapseButtons"))
         return;
@@ -447,7 +447,7 @@ async function loadExpandCollapseButtons() {
             console.log("could not find where to add the expand/collapse buttons");
         return;
     }
-    addButtonsHere.insertAdjacentHTML("afterend", get_ex_expandCollapseButtons());
+    addButtonsHere.insertAdjacentHTML("beforeend", get_ex_expandCollapseButtons());
     document.querySelector("#collapseComments").addEventListener("click", collapseComments);
     document.querySelector("#expandComments").addEventListener("click", expandComments);
 }
