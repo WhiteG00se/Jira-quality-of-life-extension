@@ -1,7 +1,7 @@
 {
    "manifest_version": 3,
    "name": "Jira, quality of life extension",
-   "version": "0.1",
+   "version": "1.0",
    "description": "out of the box only adds a button right side of the nav bar, which opens the settings to turn on/off features",
    "icons": {
       "16": "images/icon-16.png",
