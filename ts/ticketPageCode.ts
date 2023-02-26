@@ -129,7 +129,7 @@ function findModuleContainer(moduleButton: HTMLElement): HTMLElement | null {
 async function copyTicketIdButton() {
 	const userSetting: string | null = localStorage.getItem("ex_showCopyTicketIdButton")
 	if (userSetting !== "true") return
-	
+
 	const toolbar = await waitForSelector(".aui-toolbar2-primary")
 	//this function may be called via restoreExtensionElements(), maybe the buttons are already there
 	if (document.querySelector("#ex_copyTicketIdButton")) return

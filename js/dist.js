@@ -24,14 +24,17 @@ function refreshDashboard() {
     const interval = parseInt(userSetting);
     setInterval(function () {
         // check if there is an element with id "create-issue-dialog" AND if "ex_modal" is visible AND if pageType is "dashboard"
-        if (document.querySelector("#create-issue-dialog") == null &&
-            document.querySelector("#ex_modal").style.display == "none" &&
-            getPageType() == "dashboard") {
+        const ex_modal = document.querySelector("#ex_modal");
+        if (!ex_modal)
+            throw new Error("couldn't find ex_modal during refresh check");
+        if (getPageType() == "dashboard" &&
+            !document.querySelector("#create-issue-dialog") &&
+            ex_modal.style.display == "none") {
             location.reload();
         }
         else {
             if (getDebugMode())
-                console.log('did not refresh because "Create Issue" or "ex_modal" dialog is open');
+                console.log("did not refresh because of modal or pageType");
         }
     }, interval * 1000);
     // log to console if debug mode is enabled
@@ -198,7 +201,7 @@ function runCodeForPagetype() {
     if (pageType == "plugin")
         return;
     if (getDebugMode())
-        console.log(`pageType: '${pageType}'`);
+        console.log(`pageType'${pageType}'`);
     modalCode();
     switch (pageType) {
         case "dashboard":

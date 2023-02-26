@@ -1,16 +1,16 @@
-function initializeObserver(): void {
-	const monitoredNode: Node = document.body
+function initializeObserver() {
+	const monitoredNode = document.body
 	const ex_mutationObserver = new MutationObserver((entries) => {
 		monitorPageChanges()
 	})
 	ex_mutationObserver.observe(monitoredNode, { childList: true, subtree: true })
 }
 
-function monitorPageChanges(): void {
-	const oldPageTitle: string = sessionStorage?.getItem("ex_pageTitle") ?? ""
-	const newPageTitle: string = document.title
-	const oldPageURL: string = sessionStorage?.getItem("ex_pageURL") ?? ""
-	const newPageURL: string = window.location.href
+function monitorPageChanges() {
+	const oldPageTitle = sessionStorage?.getItem("ex_pageTitle") ?? ""
+	const newPageTitle = document.title
+	const oldPageURL = sessionStorage?.getItem("ex_pageURL") ?? ""
+	const newPageURL = window.location.href
 	//wait until both the pageTitle and the pageURL have changed
 	if (oldPageTitle != newPageTitle && oldPageURL != newPageURL) {
 		//only run code if neither were previously empty strings (empty when first loading the page)
@@ -29,7 +29,7 @@ function monitorPageChanges(): void {
 	}
 }
 
-function getPageType(): string {
+function getPageType() {
 	let pageType = "default"
 	const URL = window.location.href
 	if (URL.toLowerCase().includes("/plugins")) pageType = "plugin"
@@ -37,7 +37,7 @@ function getPageType(): string {
 	else if (URL.includes("/browse/") || (URL.includes("/projects/") && URL.includes("/queues/"))) {
 		const parts = URL.split("/")
 		const lastPart = parts[parts.length - 1]
-		
+
 		if (/^[a-zA-Z]+-[0-9]+/.test(lastPart)) {
 			pageType = "ticket"
 		}

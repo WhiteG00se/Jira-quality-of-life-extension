@@ -13,14 +13,14 @@ async function loadModalButton() {
 	if (!addButtonHere) throw new Error(`could not find "#quicksearch-menu" to add ex_modalButton`)
 	addButtonHere.insertAdjacentHTML("afterend", get_ex_modalButton())
 
-	const addEventListenerHere: HTMLElement | null = document.querySelector("#ex_modalButton")
+	const addEventListenerHere = document.querySelector("#ex_modalButton")
 	if (!addEventListenerHere) throw new Error("couldn't find ex_modalButton to add event listener")
 	addEventListenerHere.addEventListener("click", function () {
-		const ex_modal: HTMLElement | null = document.querySelector("#ex_modal")
+		const ex_modal = document.querySelector("#ex_modal") as HTMLElement | null
 		if (!ex_modal) throw new Error("couldn't find ex_modal to open")
 		ex_modal.style.display = "block"
 
-		const auiBlanket: HTMLElement | null = document.querySelector(".aui-blanket")
+		const auiBlanket = document.querySelector(".aui-blanket")
 		if (!auiBlanket) throw new Error("couldn't find aui-blanket remove 'hidden' attribute from")
 		auiBlanket.removeAttribute("hidden")
 	})
@@ -70,8 +70,8 @@ function submitModal() {
 	})
 }
 
-function userSettingsToArray(userSettings: string): string[] {
-	let settingsArray: string[] = userSettings.split(",")
+function userSettingsToArray(userSettings: string) {
+	let settingsArray = userSettings.split(",")
 	settingsArray.forEach(function (entry, index) {
 		settingsArray[index] = entry.trim()
 	})

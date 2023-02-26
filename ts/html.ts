@@ -1,12 +1,12 @@
-function get_ex_modalButton(): string {
-	const html: string = `
+function get_ex_modalButton() {
+	const html = `
 <button id="ex_modalButton">
 	<h3>&#9889</h3>
 </button>`
 	return html
 }
-function get_ex_modal(): string {
-	const html: string = `
+function get_ex_modal() {
+	const html = `
 <span id="ex_modal" style="display: none">
 	<section class="aui-layer aui-dialog2 aui-dialog2-large" open="" style="z-index: 3000;" tabindex="-1">
 		<header class="aui-dialog2-header">

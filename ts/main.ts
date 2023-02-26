@@ -5,10 +5,10 @@ function main() {
 	initializeObserver()
 }
 
-function runCodeForPagetype(): void {
-	const pageType: string = getPageType()
+function runCodeForPagetype() {
+	const pageType = getPageType()
 	if (pageType == "plugin") return
-	if (getDebugMode()) console.log(`pageType: '${pageType}'`)
+	if (getDebugMode()) console.log(`pageType'${pageType}'`)
 
 	modalCode()
 	switch (pageType) {
@@ -20,8 +20,8 @@ function runCodeForPagetype(): void {
 			break
 	}
 }
-function restoreExtensionForPagetype(): void {
-	const pageType: string = getPageType()
+function restoreExtensionForPagetype() {
+	const pageType = getPageType()
 	//enter the functions here that restore the extension elements
 	switch (pageType) {
 		case "dashboard":
@@ -33,7 +33,7 @@ function restoreExtensionForPagetype(): void {
 	}
 }
 
-function getDebugMode(): boolean {
+function getDebugMode() {
 	if (localStorage.getItem("ex_debugMode") == "true") {
 		return true
 	} else {

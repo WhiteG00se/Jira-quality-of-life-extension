@@ -1,4 +1,4 @@
-function dashboardPageCode(): void {
+function dashboardPageCode() {
 	removeSidebar()
 	refreshDashboard()
 }
@@ -14,21 +14,23 @@ async function removeSidebar() {
 	sidebar.remove()
 	if (getDebugMode()) console.log("Sidebar removed")
 }
-function refreshDashboard(): void {
-	const userSetting: string | null = localStorage.getItem("ex_refreshDashboardInterval")
+function refreshDashboard() {
+	const userSetting = localStorage.getItem("ex_refreshDashboardInterval")
 	if (!userSetting) return
-	const interval: number = parseInt(userSetting)
+	const interval = parseInt(userSetting)
 
 	setInterval(function () {
 		// check if there is an element with id "create-issue-dialog" AND if "ex_modal" is visible AND if pageType is "dashboard"
+		const ex_modal = document.querySelector("#ex_modal") as HTMLElement | null
+		if (!ex_modal) throw new Error("couldn't find ex_modal during refresh check")
 		if (
-			document.querySelector("#create-issue-dialog") == null &&
-			document.querySelector<HTMLElement>("#ex_modal")!.style.display == "none" &&
-			getPageType() == "dashboard"
+			getPageType() == "dashboard" &&
+			!document.querySelector("#create-issue-dialog") &&
+			ex_modal.style.display == "none"
 		) {
 			location.reload()
 		} else {
-			if (getDebugMode()) console.log('did not refresh because "Create Issue" or "ex_modal" dialog is open')
+			if (getDebugMode()) console.log("did not refresh because of modal or pageType")
 		}
 	}, interval * 1000)
 	// log to console if debug mode is enabled
