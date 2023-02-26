@@ -7,7 +7,7 @@ async function ticketPageCode() {
 }
 
 async function commentOrder() {
-	const userSettings: string | null = localStorage.getItem("ex_selectCommentOrder")
+	const userSettings = localStorage.getItem("ex_selectCommentOrder")
 	if (!userSettings) return
 
 	const orderButton = await waitForSelector("#sort-button")
@@ -33,7 +33,7 @@ async function commentOrder() {
 	}
 }
 async function loadExpandCollapseButtons() {
-	const userSetting: string | null = localStorage.getItem("ex_showExpandCollapseButtons")
+	const userSetting = localStorage.getItem("ex_showExpandCollapseButtons")
 	if (userSetting !== "true") return
 
 	const addButtonsHere = await waitForSelector("#activitymodule_heading")
@@ -56,8 +56,8 @@ async function collapseCommentsAfterPageLoad() {
 	await waitForSelector(".twixi-block")
 	collapseComments()
 }
-function collapseComments(): void {
-	const comments: NodeListOf<HTMLElement> = document.querySelectorAll(".twixi-block")
+function collapseComments() {
+	const comments = document.querySelectorAll(".twixi-block")
 	if (comments.length == 0) {
 		if (getDebugMode()) console.log("tried to collapse comments but couldn't find any")
 		return
@@ -68,8 +68,8 @@ function collapseComments(): void {
 	})
 	if (getDebugMode()) console.log("collapsed all comments")
 }
-function expandComments(): void {
-	const comments: NodeListOf<HTMLElement> = document.querySelectorAll(".twixi-block")
+function expandComments() {
+	const comments = document.querySelectorAll(".twixi-block")
 	if (comments.length == 0) {
 		if (getDebugMode()) console.log("tried to expand comments but couldn't find any")
 		return
@@ -81,9 +81,9 @@ function expandComments(): void {
 }
 async function collapseModulesAfterPageLoad() {
 	//split input into an array and trim all of the elements
-	const userSettings: string | null = localStorage.getItem("ex_whatModulesToCollapseDuringPageLoad")
+	const userSettings = localStorage.getItem("ex_whatModulesToCollapseDuringPageLoad")
 	if (!userSettings) return
-	const modulesToCollapse: string[] = userSettingsToArray(userSettings)
+	const modulesToCollapse = userSettingsToArray(userSettings)
 
 	if (getDebugMode()) console.log("modules to collapse:")
 	if (getDebugMode()) console.log(modulesToCollapse)
@@ -93,7 +93,7 @@ async function collapseModulesAfterPageLoad() {
 		collapseModule(module)
 	})
 }
-function collapseModule(module: string): void {
+function collapseModule(module: string) {
 	// buttons with "aria-label"=module
 	// there might be more than one module with the same lable ("Attachments" in my jira),
 	// so we need to use querySelectorAll and work with arrays
@@ -127,7 +127,7 @@ function findModuleContainer(moduleButton: HTMLElement): HTMLElement | null {
 }
 
 async function copyTicketIdButton() {
-	const userSetting: string | null = localStorage.getItem("ex_showCopyTicketIdButton")
+	const userSetting = localStorage.getItem("ex_showCopyTicketIdButton")
 	if (userSetting !== "true") return
 
 	const toolbar = await waitForSelector(".aui-toolbar2-primary")
@@ -145,11 +145,11 @@ async function copyTicketIdButton() {
 	if (getDebugMode()) console.log("added the copy ticket id button")
 }
 
-function copyTicketId(): void {
-	const metaTag: HTMLElement | null = document.querySelector("meta[name='ajs-issue-key']")
+function copyTicketId() {
+	const metaTag = document.querySelector("meta[name='ajs-issue-key']") as HTMLElement | null
 	if (!metaTag) throw new Error("couldn't find the meta tag with the ticket id")
 
-	const ticketId: string | null = metaTag.getAttribute("content")
+	const ticketId = metaTag.getAttribute("content")
 	if (!ticketId) throw new Error("found the meta tag but couldn't get the ticket id")
 
 	navigator.clipboard.writeText(ticketId)
