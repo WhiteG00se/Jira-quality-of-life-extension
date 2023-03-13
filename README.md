@@ -1,13 +1,13 @@
 # Jira quality of life extension
 # only jira datacenter is supported, jira cloud is not
 
-install the extension from the chrome web store:
-https://chrome.google.com/webstore/category/extensions
+install the extension from the chrome web store:<br>
+https://chrome.google.com/webstore/detail/jira-quality-of-life-exte/folmfdcdedbbppdmdjmahilddgdggego
 
-adds a button right side of the nav bar which opens the settings
+adds a button right side of the nav bar which opens the settings<br>
 all features are disabled by default, the user can disable/enable them to their liking
 
-How to build the extension from source and install it in chrome:
+How to build the extension from source and install it in chrome:<br>
 pre-requisites: node.js, typescript, chrome
 
 1. open a terminal and navigate to the project root folder
