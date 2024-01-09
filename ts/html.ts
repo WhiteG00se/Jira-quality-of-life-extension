@@ -131,6 +131,8 @@ function get_ex_modal() {
 function get_ex_expandCollapseButtons() {
 	const html = `
 <span id="ex_expandCollapseButtons">
+	<br>
+	<br>
 	<button id="expandComments">expand all</button>
 	<button id="collapseComments">collapse all</button>
 </span>
